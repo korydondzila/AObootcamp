@@ -3,17 +3,17 @@ import './slideShow.css'
 
 class Slide extends React.Component
 {
-	render(child)
+	render()
 	{
 		return (
 			<div className="slide">
-				{child}
+				{this.props.children}
 			</div>
 		);
 	}
 }
 
-class TitleSlide extends Slide
+class TitleSlide extends React.Component
 {
 	constructor(props)
 	{
@@ -23,28 +23,15 @@ class TitleSlide extends Slide
 
 	render()
 	{
-		return super.render(<h1>{this.props.title}</h1>);
+		return (
+			<Slide>
+				<h1>{this.props.title}</h1>
+			</Slide>
+		);
 	}
 }
 
 class HeaderSlide extends Slide
-{
-	constructor(props)
-	{
-		super();
-		this.props = props;
-	}
-
-	render()
-	{
-		return super.render([
-			<h2>{this.props.header}</h2>,
-			<p>{this.props.body}</p>
-		]);
-	}
-}
-
-class TwoColumnSlide extends Slide
 {
 	constructor(props)
 	{
@@ -64,10 +51,31 @@ class TwoColumnSlide extends Slide
 	render()
 	{
 		const ps = this.renderParagraphs();
-		return super.render([
-			<h2>{this.props.header}</h2>,
-			<div className="two-column">{ps}</div>
-		]);
+		return (
+			<Slide>
+				<h2>{this.props.header}</h2>
+				<div className={this.props.type}>
+					{ps}
+				</div>
+			</Slide>
+		);
+	}
+}
+
+class TwoColumnSlide extends Slide
+{
+	constructor(props)
+	{
+		super();
+		this.props = props;
+	}
+
+	render()
+	{
+		return (
+			<HeaderSlide header={this.props.header}
+				type="two-column" body={this.props.body}/>
+		);
 	}
 }
 
@@ -87,7 +95,11 @@ class SlideShow extends React.Component
 		super();
 		this.slides = [];
 		this.slides.push(<TitleSlide title="Title Here"/>);
-		this.slides.push(<HeaderSlide header="Some Header" body="Lorem ipsum dolor sit amet, ... Well we need some real content too. Otherwise this looks rather dull. Nulla ullamcorper diam arcu, ... And some more text to make this look like a paragragh. In libero diam, facilisis quis urna nec, ... By the way, fake Latin is not good fill text. It behaves differently from the texts you will really use. Sed varius et mi quis dictum. ... But I digress."/>);
+		this.slides.push(<HeaderSlide header="Some Header" type=""
+			body={[
+				"Lorem ipsum dolor sit amet, ... Well we need some real content too. Otherwise this looks rather dull. Nulla ullamcorper diam arcu, ... And some more text to make this look like a paragragh. In libero diam, facilisis quis urna nec, ... By the way, fake Latin is not good fill text. It behaves differently from the texts you will really use. Sed varius et mi quis dictum. ... But I digress."
+			]}/>
+		);
 		this.slides.push(
 			<TwoColumnSlide header="Two Columns" body={[
 				"Lorem ipsum dolor sit amet, ... Well we need some real content too. Otherwise this looks rather dull.",
@@ -105,13 +117,13 @@ class SlideShow extends React.Component
 	prevNextClick(type)
 	{
 		const current = this.state.currentSlide;
-		if (type === "prev" && current > 0)
+		if (type === "prev")
 		{
 			this.setState({
 				currentSlide: current - 1
 			});
 		}
-		else if (type === "next" && current < this.slides.length - 1)
+		if (type === "next")
 		{
 			this.setState({
 				currentSlide: current + 1
@@ -121,19 +133,24 @@ class SlideShow extends React.Component
 
 	render()
 	{
+		const curSlide = this.state.currentSlide;
+		const slidesLen = this.slides.length;
+		let prev = null;
+		let next = null;
+		if (curSlide > 0)
+			prev = <Button type="prev" value="Previous"
+						onClick={() => this.prevNextClick("prev")}
+					/>;
+		if (curSlide < slidesLen - 1)
+			next = <Button type="next" value="Next"
+						onClick={() => this.prevNextClick("next")}
+					/>;
+
 		return (
 			<div className="slide-show">
 				{this.slides[this.state.currentSlide]}
-				<Button 
-					type="prev"
-					value="Previous"
-					onClick={() => this.prevNextClick("prev")}
-				/>
-				<Button 
-					type="next"
-					value="Next"
-					onClick={() => this.prevNextClick("next")}
-				/>
+				{prev}
+				{next}
 			</div>
 		);
 	}
