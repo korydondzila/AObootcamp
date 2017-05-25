@@ -75,7 +75,7 @@ class NavMenu extends React.Component<NavProps, null>
             if (this.props.viewed[i])
             {
                 listSlides.push(
-                    <li className="checked">
+                    <li className="checked" key={i}>
                         <NavButton value={this.props.slides[i]} onClick={() => this.props.onClick(i)} />
                     </li>
                 );
@@ -83,7 +83,7 @@ class NavMenu extends React.Component<NavProps, null>
             else
             {
                 listSlides.push(
-                    <li className="unchecked">
+                    <li className="unchecked" key={i}>
                         <NavButton value={this.props.slides[i]} onClick={() => this.props.onClick(i)} />
                     </li>
                 );
@@ -97,7 +97,7 @@ class NavMenu extends React.Component<NavProps, null>
         return (
             <div className="nav-menu">
                 <h3>Overview</h3>
-                <ul>
+                <ul className="nav-list">
                     {this.renderSlides()}
                 </ul>
             </div>
