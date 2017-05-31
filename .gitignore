@@ -4,7 +4,7 @@
 # dependencies
 
 /node_modules
-
+/client/node_modules
 
 
 # testing
@@ -36,3 +36,4 @@ yarn-error.log*
 /.chrome/
 /.vscode
 /public
+/client/public

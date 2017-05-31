@@ -1,0 +1,158 @@
+.slide-show
+{
+    width: 1000px;
+}
+
+.main-menu
+{
+    border: 2px solid #000;
+    height: 50px;
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 5px;
+    display: -webkit-flex;
+    display: flex;
+    align-items: center;
+}
+
+.dropdown
+{
+    float: left;
+    overflow: hidden;
+}
+
+.dropdown .dropbtn
+{
+    cursor: pointer;
+    font-size: 14px;    
+    border: none;
+    text-align: center;
+    background-color: inherit;
+    outline: none;
+}
+
+.dropbtn:hover
+{
+    background-color: #ddd;
+}
+
+.file-content
+{
+    display: none;
+    position: absolute;
+    background-color: #fff;
+    z-index: 1;
+}
+
+.menu-button:hover
+{
+    background-color: #ddd;
+}
+
+.menu-button
+{
+    background: transparent;
+	border: none;
+    font-size: 14px;
+    text-align: center;
+    outline: none;
+}
+
+.dialog
+{
+    display: none;
+    position: fixed;
+    z-index: 1;
+}
+
+.dialog-content
+{
+    margin: auto;
+}
+
+.nav-menu
+{
+    border: 2px solid #000;
+    height: 500px;
+    width: 250px;
+    margin-right: 5px;
+    box-sizing: border-box;
+    flex: initial;
+    float: left;
+    display: -webkit-inline-flex;
+	display: inline-flex;
+	-webkit-flex-direction: column;
+	flex-direction: column;
+    align-items: center;
+}
+
+.nav-button
+{
+    background: transparent;
+	border: none;
+	padding: 0;
+	text-align: center;
+}
+
+ul
+{
+    list-style-type: none;
+    padding: 0;
+}
+
+.checked::before
+{
+    content: "\2713\0020";
+}
+
+.checked:focus
+{
+    outline: none;
+}
+
+.prev
+{
+	background: transparent;
+	border: none;
+	float: left;
+	font-size: 14px;
+	padding: 0;
+	text-align: center;
+	transform: translate(0, -100%);
+	margin-top: -20px;
+    margin-left: 279px;
+}
+
+.next
+{
+	background: transparent;
+	border: none;
+	float: right;
+	font-size: 14px;
+	padding: 0;
+	text-align: center;
+    position: relative;
+    transform: translate(0, -100%);
+	margin-top: -20px;
+	margin-right: 20px;
+}
+
+.prev:focus
+{
+	outline: none;
+}
+
+.next:focus
+{
+	outline: none;
+}
+
+.imgs
+{
+    border: 1px solid #000;
+    position: absolute;
+    margin-top: 5px;
+    width: inherit;
+    box-sizing: border-box;
+    text-align: center;
+}

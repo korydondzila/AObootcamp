@@ -1,68 +1,117 @@
 import * as React from 'react';
+import Client from '../client';
+import ReactModal from 'react-modal';
 import './slideShow.css';
+import {TitleSlide, HeaderSlide} from './slideTypes';
 
-class Slide extends React.Component<{children?:any;}, null>
+window.onclick = function(e: any)
 {
+    if (!e.target.matches('.dropbtn'))
+    {
+        let drpdwn: HTMLElement = document.getElementById('file_dropdown');
+        drpdwn.style.display = "none";
+    }
+}
+
+function Button(props: any)
+{
+    return (
+        <button className={props.type} onClick={props.onClick}>
+            {props.value}
+        </button>
+    );
+}
+
+interface MainMenuProps
+{
+    onClickOpen: () => any;
+}
+
+class MainMenu extends React.Component<MainMenuProps, null>
+{
+    dropdown (id: string)
+    {
+        let drpdwn: HTMLElement = document.getElementById(id);
+        drpdwn.style.display = 'flex';
+        drpdwn.style.flexDirection = 'column';
+        drpdwn.style.alignItems = 'center';
+    }
+
     render()
     {
         return (
-            <div className="slide">
-                {this.props.children}
+            <div className="main-menu">
+                <div className="dropdown">
+                    <Button type="dropbtn" value="File" 
+                        onClick={() => this.dropdown('file_dropdown')}/>
+                    <div id="file_dropdown" className="file-content">
+                        <Button type="menu-button" value="Open" 
+                            onClick={() => this.props.onClickOpen}/>
+                        <Button type="menu-button" value="Save"/>
+                    </div>
+                </div>
+                <Button type="menu-button" value="Edit"/>
             </div>
         );
     }
 }
 
-class TitleSlide extends React.Component<{header:string;}, null>
+interface DialogProps
 {
+    isOpen: boolean;
+    onClick: () => any;
+}
+
+class OpenDialog extends React.Component<DialogProps, null>
+{
+    slideshows: any[] = [];
+
+    listSlideshows()
+    {
+        if (this.slideshows.length === 0)
+        {
+            Client.search(
+                'SELECT * FROM `ao_slideshows`;',
+                (slideShows: any) => {
+                    this.slideshows = slideShows.slice();
+                }
+            );
+        }
+
+        let temp: JSX.Element[] = [];
+        this.slideshows.map((slideshow, id) => {
+            let file: string = slideshow.file;
+            temp.push(
+                <li key={id}>
+                    <Button type="nav-button" value={file}/>
+                </li>
+            );
+        });
+
+        return temp;
+    }
+
     render()
     {
         return (
-            <Slide>
-                <h1>{this.props.header}</h1>
-            </Slide>
+            <ReactModal isOpen={this.props.isOpen} contentLabel="Open Dialog" 
+                shouldCloseOnOverlayClick={true} onRequestClose={this.props.onClick()} 
+                role="dialog">
+                <ul>
+                    {this.listSlideshows()}
+                </ul>
+                <Button type="nav-button" value="Close"
+                    onClick={() => this.props.onClick()}/>
+            </ReactModal>
         );
     }
-}
-
-class HeaderSlide extends React.Component<{header:string; type:string; body:string[];}, null>
-{
-    renderParagraphs()
-    {
-        let ps: JSX.Element[] = [];
-        this.props.body.forEach(function(element: any) {
-            ps.push(<p>{element}</p>);
-            });
-        return ps;
-    }
-
-    render()
-    {
-        return (
-            <Slide>
-                <h2>{this.props.header}</h2>
-                <div className={this.props.type}>
-                    {this.renderParagraphs()}
-                </div>
-            </Slide>
-        );
-    }
-}
-
-function NavButton(props: any)
-{
-    return (
-        <button className="nav-button" onClick={props.onClick}>
-            {props.value}
-        </button>
-    );
 }
 
 interface NavProps
 {
     slides: string[];
     viewed: boolean[];
-    onClick: (i) => any;
+    onClick: (i: number) => any;
 }
 
 class NavMenu extends React.Component<NavProps, null>
@@ -76,7 +125,9 @@ class NavMenu extends React.Component<NavProps, null>
             {
                 listSlides.push(
                     <li className="checked" key={i}>
-                        <NavButton value={this.props.slides[i]} onClick={() => this.props.onClick(i)} />
+                        <Button type="nav-button" 
+                            value={this.props.slides[i]} 
+                            onClick={() => this.props.onClick(i)} />
                     </li>
                 );
             }
@@ -84,7 +135,9 @@ class NavMenu extends React.Component<NavProps, null>
             {
                 listSlides.push(
                     <li className="unchecked" key={i}>
-                        <NavButton value={this.props.slides[i]} onClick={() => this.props.onClick(i)} />
+                        <Button type="nav-button" 
+                            value={this.props.slides[i]} 
+                            onClick={() => this.props.onClick(i)} />
                     </li>
                 );
             }
@@ -105,19 +158,12 @@ class NavMenu extends React.Component<NavProps, null>
     }
 }
 
-function PrevNextButton(props: any)
-{
-    return (
-        <button className={props.type} onClick={props.onClick}>
-            {props.value}
-        </button>
-    );
-}
-
 interface SlideShowState
 {
     currentSlide: number;
     slidesViewed: boolean[];
+    imgs: string[];
+    showOpenDialog: boolean;
 }
 
 class SlideShow extends React.Component<null, SlideShowState>
@@ -158,7 +204,22 @@ class SlideShow extends React.Component<null, SlideShowState>
         this.state = {
             currentSlide: 0,
             slidesViewed: viewed,
+            imgs: [],
+            showOpenDialog: false,
         };
+
+        this.handleOpenDialog = this.handleOpenDialog.bind(this);
+        this.handleCloseDialog = this.handleCloseDialog.bind(this);
+    }
+
+    handleOpenDialog()
+    {
+        this.setState({ showOpenDialog: true })
+    }
+
+    handleCloseDialog()
+    {
+        this.setState({ showOpenDialog: false })
     }
 
     prevNextClick(type: string)
@@ -183,7 +244,7 @@ class SlideShow extends React.Component<null, SlideShowState>
         }
     }
 
-    navClick(i)
+    navClick(i: number)
     {
         const viewed = this.state.slidesViewed.slice();
         viewed[i] = true;
@@ -211,25 +272,35 @@ class SlideShow extends React.Component<null, SlideShowState>
         let next = null;
         if (curSlide > 0)
         {
-            prev = <PrevNextButton type="prev" value="Previous"
+            prev = <Button type="prev" value="Previous"
                         onClick={() => this.prevNextClick('prev')}
                     />;
         }
 
         if (curSlide < slidesLen - 1)
         {
-            next = <PrevNextButton type="next" value="Next"
+            next = <Button type="next" value="Next"
                         onClick={() => this.prevNextClick('next')}
                     />;
         }
 
         return (
             <div className="slide-show">
+                <OpenDialog isOpen={this.state.showOpenDialog} 
+                    onClick={() => this.handleCloseDialog()}/>
+                <MainMenu onClickOpen={() => this.handleOpenDialog()}/>
                 <NavMenu slides={this.slideNames()} viewed={this.state.slidesViewed}
                     onClick={(i) => this.navClick(i)}/>
                 {this.slides[this.state.currentSlide]}
                 {prev}
                 {next}
+                <div className="imgs">
+                    <p>
+                    {this.state.imgs.map((id, index) => {
+                        return id + ', ';
+                    })}
+                    </p>
+                </div>
             </div>
         );
     }
