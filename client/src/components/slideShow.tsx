@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Client from '../client';
-import ReactModal from 'react-modal';
+import * as ReactModal from 'react-modal';
 import './slideShow.css';
 import {TitleSlide, HeaderSlide} from './slideTypes';
 
@@ -46,7 +46,7 @@ class MainMenu extends React.Component<MainMenuProps, null>
                         onClick={() => this.dropdown('file_dropdown')}/>
                     <div id="file_dropdown" className="file-content">
                         <Button type="menu-button" value="Open" 
-                            onClick={() => this.props.onClickOpen}/>
+                            onClick={() => this.props.onClickOpen()}/>
                         <Button type="menu-button" value="Save"/>
                     </div>
                 </div>
