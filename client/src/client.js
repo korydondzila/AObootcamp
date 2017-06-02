@@ -24,11 +24,5 @@ function parseJSON(response)
     return response.json();
 }
 
-function post(msg)
-{
-    postMessage(msg, '/');
-    
-}
-
-const Client = { search, post };
+const Client = { search };
 export default Client;

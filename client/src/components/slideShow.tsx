@@ -9,7 +9,7 @@ window.onclick = function(e: any)
     if (!e.target.matches('.dropbtn'))
     {
         let drpdwn: HTMLElement = document.getElementById('file_dropdown');
-        drpdwn.style.display = "none";
+        drpdwn.style.display = 'none';
     }
 }
 
@@ -60,6 +60,7 @@ interface DialogProps
 {
     isOpen: boolean;
     onClick: () => any;
+    onSlideClick: (file: string) => any;
 }
 
 class OpenDialog extends React.Component<DialogProps, null>
@@ -78,29 +79,36 @@ class OpenDialog extends React.Component<DialogProps, null>
             );
         }
 
-        let temp: JSX.Element[] = [];
-        this.slideshows.map((slideshow, id) => {
-            let file: string = slideshow.file;
-            temp.push(
-                <li key={id}>
-                    <Button type="nav-button" value={file}/>
-                </li>
+        return this.slideshows.map((slideshow, id) => {
+            return (
+                <tr className="slideshow-row" key={id} 
+                    onClick={() => this.props.onSlideClick(slideshow.file)}>
+                    <th>{slideshow.file}</th>
+                    <th>{slideshow.date_modified}</th>
+                    <th>{slideshow.date_creation}</th>
+                </tr>
             );
         });
-
-        return temp;
     }
 
     render()
     {
         return (
-            <ReactModal isOpen={this.props.isOpen} contentLabel="Open Dialog" 
-                shouldCloseOnOverlayClick={true} onRequestClose={this.props.onClick()} 
+            <ReactModal className="openDialog" overlayClassName="openDialogOverlay" 
+                isOpen={this.props.isOpen} contentLabel="Open Dialog" 
+                shouldCloseOnOverlayClick={true} onRequestClose={this.props.onClick} 
                 role="dialog">
-                <ul>
-                    {this.listSlideshows()}
-                </ul>
-                <Button type="nav-button" value="Close"
+                <div className="slideShow-list">
+                    <table>
+                        <tr>
+                            <th>Slideshow</th>
+                            <th>Modified Date</th>
+                            <th>Creation Date</th>
+                        </tr>
+                        {this.listSlideshows()}
+                    </table>
+                </div>
+                <Button type="dialog-close-button" value="Close"
                     onClick={() => this.props.onClick()}/>
             </ReactModal>
         );
@@ -118,31 +126,26 @@ class NavMenu extends React.Component<NavProps, null>
 {
     renderSlides()
     {
-        let listSlides: JSX.Element[] = [];
-        for (let i: number = 0; i < this.props.slides.length; i++)
-        {
+        return this.props.slides.map((slide, i) => {
             if (this.props.viewed[i])
             {
-                listSlides.push(
+                return (
                     <li className="checked" key={i}>
-                        <Button type="nav-button" 
-                            value={this.props.slides[i]} 
+                        <Button type="nav-button" value={this.props.slides[i]} 
                             onClick={() => this.props.onClick(i)} />
                     </li>
                 );
             }
             else
             {
-                listSlides.push(
+                return (
                     <li className="unchecked" key={i}>
-                        <Button type="nav-button" 
-                            value={this.props.slides[i]} 
+                        <Button type="nav-button" value={this.props.slides[i]} 
                             onClick={() => this.props.onClick(i)} />
                     </li>
                 );
             }
-        }
-        return listSlides;
+        });
     }
 
     render()
@@ -160,26 +163,25 @@ class NavMenu extends React.Component<NavProps, null>
 
 interface SlideShowState
 {
+    slides: JSX.Element[];
     currentSlide: number;
     slidesViewed: boolean[];
-    imgs: string[];
     showOpenDialog: boolean;
 }
 
 class SlideShow extends React.Component<null, SlideShowState>
 {
-    slides: JSX.Element[] = [];
-
     constructor()
     {
         super();
-        this.slides.push(<TitleSlide header="Title Here"/>);
-        this.slides.push(<HeaderSlide header="Some Header" type=""
+        let slides: JSX.Element[] = [];
+        slides.push(<TitleSlide header="Title Here"/>);
+        slides.push(<HeaderSlide header="Some Header" type=""
             body={[
                 'Lorem ipsum dolor sit amet, ... Well we need some real content too. Otherwise this looks rather dull. Nulla ullamcorper diam arcu, ... And some more text to make this look like a paragragh. In libero diam, facilisis quis urna nec, ... By the way, fake Latin is not good fill text. It behaves differently from the texts you will really use. Sed varius et mi quis dictum. ... But I digress.'
             ]}/>
         );
-        this.slides.push(
+        slides.push(
             <HeaderSlide header="Two Columns" type="two-column" body={[
                 'Lorem ipsum dolor sit amet, ... Well we need some real content too. Otherwise this looks rather dull.',
                 'Nulla ullamcorper diam arcu, ... And some more text to make this look like a paragragh.',
@@ -189,7 +191,7 @@ class SlideShow extends React.Component<null, SlideShowState>
         );
 
         let viewed: boolean[] = [];
-        for (let i: number = 0; i < this.slides.length; i++)
+        for (let i: number = 0; i < slides.length; i++)
         {
             if (i)
             {
@@ -202,9 +204,9 @@ class SlideShow extends React.Component<null, SlideShowState>
         }
 
         this.state = {
+            slides: slides,
             currentSlide: 0,
             slidesViewed: viewed,
-            imgs: [],
             showOpenDialog: false,
         };
 
@@ -220,6 +222,53 @@ class SlideShow extends React.Component<null, SlideShowState>
     handleCloseDialog()
     {
         this.setState({ showOpenDialog: false })
+    }
+
+    handleSlideClick(file: string)
+    {
+        let slides: JSX.Element[] = [];
+        Client.search(
+            'SELECT s.data FROM `ao_slides` s ' +
+            '    JOIN `ao_slideshows` AS h ON s.slideshow_id = h.id ' +
+            'WHERE h.file = "' + file + '" ' +
+            'ORDER BY s.index ASC;',
+            (slideShow: any) => {
+                slideShow.map((slide) => {
+                    let data: any = JSON.parse(slide.data);
+                    switch(data.type)
+                    {
+                        case 'TitleSlide':
+                            slides.push(<TitleSlide header={data.header}/>);
+                            break;
+                        case 'HeaderSlide':
+                            slides.push(<HeaderSlide header={data.header} type={data.subType} body={data.body}/>);
+                            break;
+                        default:
+                            break;
+                    }
+                });
+
+                let viewed: boolean[] = [];
+                for (let i: number = 0; i < slides.length; i++)
+                {
+                    if (i)
+                    {
+                        viewed.push(false);
+                    }
+                    else
+                    {
+                        viewed.push(true);
+                    }
+                }
+
+                this.setState({
+                    slides: slides,
+                    currentSlide: 0,
+                    slidesViewed: viewed,
+                    showOpenDialog: false,
+                });
+            }
+        );
     }
 
     prevNextClick(type: string)
@@ -257,7 +306,7 @@ class SlideShow extends React.Component<null, SlideShowState>
     slideNames()
     {
         let names: string[] = [];
-        this.slides.forEach(function(element: JSX.Element) {
+        this.state.slides.forEach(function(element: JSX.Element) {
             names.push(element.props.header);
         });
 
@@ -267,7 +316,7 @@ class SlideShow extends React.Component<null, SlideShowState>
     render()
     {
         const curSlide = this.state.currentSlide;
-        const slidesLen = this.slides.length;
+        const slidesLen = this.state.slides.length;
         let prev = null;
         let next = null;
         if (curSlide > 0)
@@ -287,20 +336,14 @@ class SlideShow extends React.Component<null, SlideShowState>
         return (
             <div className="slide-show">
                 <OpenDialog isOpen={this.state.showOpenDialog} 
-                    onClick={() => this.handleCloseDialog()}/>
+                    onClick={() => this.handleCloseDialog()}
+                    onSlideClick={(file) => this.handleSlideClick(file)}/>
                 <MainMenu onClickOpen={() => this.handleOpenDialog()}/>
                 <NavMenu slides={this.slideNames()} viewed={this.state.slidesViewed}
                     onClick={(i) => this.navClick(i)}/>
-                {this.slides[this.state.currentSlide]}
+                {this.state.slides[this.state.currentSlide]}
                 {prev}
                 {next}
-                <div className="imgs">
-                    <p>
-                    {this.state.imgs.map((id, index) => {
-                        return id + ', ';
-                    })}
-                    </p>
-                </div>
             </div>
         );
     }

@@ -29,11 +29,9 @@ export class HeaderSlide extends React.Component<{header:string; type:string; bo
 {
     renderParagraphs()
     {
-        let ps: JSX.Element[] = [];
-        this.props.body.forEach(function(element: any) {
-            ps.push(<p>{element}</p>);
-            });
-        return ps;
+        return this.props.body.map((paragraph: string) => {
+            return <p>{paragraph}</p>;
+        });
     }
 
     render()

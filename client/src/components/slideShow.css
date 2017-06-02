@@ -58,16 +58,94 @@
     outline: none;
 }
 
-.dialog
+.openDialog
 {
-    display: none;
-    position: fixed;
-    z-index: 1;
+    position: absolute;
+    top: 25px;
+    bottom: 25px;
+    left: 25%;
+    right: 25%;
+    border: 1px solid #000;
+    box-sizing: border-box;
+    background: #fff;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 4px;
+    outline: none;
+    display: flex;
+    display: -webkit-flex;
+    align-items: center;
+    flex-direction: column;
+    -webkit-flex-direction: column;
 }
 
-.dialog-content
+.openDialogOverlay
 {
-    margin: auto;
+    position: fixed;
+    top: 8px;
+    left: 8px;
+    height: 555px;
+    width: 1000px;
+    background-color: rgba(100, 255, 255, 0.75);
+}
+
+.slideShow-list
+{
+    display: flex;
+    display: -webkit-flex;
+    box-sizing: border-box;
+    height: 100%;
+    margin: 20px;
+    overflow: auto;
+    flex-direction: column;
+    -webkit-flex-direction: column;
+    align-items: left;
+}
+
+.slideShow-list table, tr, th
+{
+    border: 1px solid #000;
+    border-collapse: collapse;
+}
+
+.slideShow-list tr
+{
+    font-size: 14px;
+}
+
+.slideshow-row
+{
+    cursor: pointer;
+}
+
+.slideshow-row:hover
+{
+    background-color: #ddd;
+}
+
+.slideShow-list tr:focus
+{
+    outline: none;
+}
+
+.slideShow-list th
+{
+    padding: 5px;
+}
+
+.dialog-close-button
+{
+    background: transparent;
+	border: 1px solid #000;
+	padding: 2px;
+    box-sizing: border-box;
+    margin-bottom: 20px;
+	text-align: center;
+    font-size: 18px;
+}
+
+.dialog-close-button:focus
+{
+    outline: none;
 }
 
 .nav-menu
@@ -145,14 +223,4 @@ ul
 .next:focus
 {
 	outline: none;
-}
-
-.imgs
-{
-    border: 1px solid #000;
-    position: absolute;
-    margin-top: 5px;
-    width: inherit;
-    box-sizing: border-box;
-    text-align: center;
 }

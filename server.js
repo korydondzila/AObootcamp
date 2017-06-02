@@ -46,7 +46,8 @@ connection.query(query, function(err, rows, fields) {
 var query =
     'CREATE TABLE IF NOT EXISTS `' + slides_table +'` (' +
     '`id` int(11) unsigned NOT NULL AUTO_INCREMENT,' +
-    '`slideShow_id` int(11) unsigned NOT NULL,' +
+    '`slideshow_id` int(11) unsigned NOT NULL,' +
+    '`index` int(11) unsigned NOT NULL DEFAULT "0",' +
     '`data` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,' +
     'PRIMARY KEY (`id`)' +
     ') ENGINE=MyISAM DEFAULT CHARSET=utf8;';
@@ -67,19 +68,19 @@ app.get('/api/', (req, res) =>
         return;
     }
 
-    /*connection.query(param, function( err, rows, fields) {
+    connection.query(param, function( err, rows, fields)
+    {
         if (err) { throw err; }
 
         if (rows)
         {
-            var imgs = rows.map((img) => {return img.id});
-            res.json(imgs);
+            res.json(rows);
         }
         else
         {
             res.json([]);
         }
-    });*/
+    });
 });
 
 app.get('/', (req, res) => {

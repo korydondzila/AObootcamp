@@ -18,6 +18,7 @@
     "typings": "^2.1.1"
   },
   "devDependencies": {
+    "@types/react-modal": "^1.6.6",
     "react-scripts-ts": "2.1.0"
   },
   "scripts": {
